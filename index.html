@@ -3,247 +3,95 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PROMOTE ALL ROUND</title>
-
+<title>PROMOTE ALL ROUND – รีวิวครบจบในเว็บเดียว</title>
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: #fff;
-}
-/* Banner */
-.banner {
-    width: 100%;
-    height: 320px;
-    background: url('banner.jpg') no-repeat center/cover;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 42px;
-    font-weight: bold;
-    text-shadow: 0 0 10px #000;
-}
-/* Search */
-.search-box {
-    margin: 20px auto;
-    width: 80%;
-    display: flex;
-    justify-content: center;
-}
-.search-box input {
-    width: 80%;
-    padding: 12px;
-    font-size: 18px;
-    border-radius: 10px;
-    border: none;
-}
-/* Category Title */
-.category-title {
-    font-size: 24px;
-    margin: 20px 0 10px 20px;
-    font-weight: bold;
-}
-/* Netflix Row */
-.row {
-    display: flex;
-    overflow-x: auto;
-    gap: 15px;
-    padding: 0 20px 20px;
-}
-.item {
-    min-width: 170px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-.item img {
-    width: 170px;
-    height: 240px;
-    object-fit: cover;
-    border-radius: 12px;
-}
-.item:hover {
-    transform: scale(1.07);
-}
-
-/* DETAIL PAGE */
-#detailPage {
-    display: none;
-    padding: 20px;
-}
-#detailPage h1 {
-    margin-top: 0;
-}
-img.main {
-    width: 300px;
-    border-radius: 12px;
-}
-.progress {
-    width: 300px;
-    height: 18px;
-    background: #333;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-top: 10px;
-}
-.progress-bar {
-    height: 100%;
-    background: limegreen;
-    width: 0%;
-    transition: 1s;
-}
-/* extra images slider */
-.slider {
-    width: 300px;
-    height: 180px;
-    overflow: hidden;
-    margin-top: 20px;
-    border-radius: 12px;
-}
-.slider img {
-    width: 300px;
-    height: 180px;
-    object-fit: cover;
-}
-button.back {
-    padding:10px 20px;
-    border:none;
-    border-radius:10px;
-    margin-bottom: 20px;
-    cursor:pointer;
-    background:#444;
-    color:#fff;
-}
+body{font-family:Arial, sans-serif;margin:0;background:#111;color:#eee}
+header{background:#222;padding:20px;text-align:center}
+header h1{margin:0}
+.container{padding:20px;max-width:900px;margin:auto}
+.search-box{margin-bottom:20px;display:flex;gap:10px}
+input, select, textarea, button{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none}
+button{cursor:pointer;background:#444;color:#fff}
+.card{background:#1c1c1c;padding:15px;border-radius:12px;margin-bottom:15px}
+.rating span{cursor:pointer;font-size:22px;color:gold}
+.comment{background:#2a2a2a;padding:8px;border-radius:8px;margin-top:6px}
+hr{border:0;border-top:1px solid #333;margin:30px 0}
 </style>
 </head>
 <body>
-
-<!-- BANNER -->
-<div class="banner">PROMOTE ALL ROUND</div>
-
-<!-- SEARCH BOX -->
+<header>
+<h1>PROMOTE ALL ROUND</h1>
+<p>โรงเรียน • ร้านค้า • หนัง • นิยาย • อนิเมะ • มังงะ</p>
+</header>
+<div class="container">
 <div class="search-box">
-    <input id="searchInput" type="text" placeholder="ค้นหา หนัง / เกม / เมะ / โรงเรียน ...">
+<input type="text" id="search" placeholder="ค้นหาชื่อสถานที่ / เรื่อง..." onkeyup="render()">
+<select id="category" onchange="render()">
+<option value="">ทุกหมวด</option>
+<option>โรงเรียน</option>
+<option>ร้านค้า</option>
+<option>หนังโรง</option>
+<option>นิยาย</option>
+<option>อนิเมะ</option>
+<option>มังงะ</option>
+<option>BL</option>
+<option>Yuri</option>
+<option>Fantasy</option>
+</select>
 </div>
-
-<!-- CATEGORIES -->
-<div id="categories"></div>
-
-<!-- DETAIL PAGE -->
-<div id="detailPage">
-    <button class="back" onclick="closeDetail()">⬅ ย้อนกลับ</button>
-    <h1 id="title"></h1>
-    <img id="mainImg" class="main">
-    <p id="desc"></p>
-    <h3>คะแนนรีวิว</h3>
-    <div class="progress">
-        <div id="bar" class="progress-bar"></div>
-    </div>
-    <h3>รูปเพิ่มเติม</h3>
-    <div class="slider">
-        <img id="slideImg">
-    </div>
+<div id="list"></div>
+<hr>
+<h2>เพิ่มรายการใหม่</h2>
+<input id="newTitle" placeholder="ชื่อรายการ">
+<select id="newCat">
+<option>โรงเรียน</option><option>ร้านค้า</option><option>หนังโรง</option>
+<option>นิยาย</option><option>อนิเมะ</option><option>มังงะ</option>
+<option>BL</option><option>Yuri</option><option>Fantasy</option>
+</select>
+<button onclick="addItem()">เพิ่มรายการ</button>
 </div>
-
 <script>
-/* ========= DATA =========== */
-const allData = {
-    "ANIME": [
-        {title:"Naruto", img:"naruto.jpg", score:82, desc:"นินจาเด็กผู้ตามหาความฝัน", extra:["n1.jpg","n2.jpg","n3.jpg"]},
-        {title:"One Piece", img:"onepiece.jpg", score:95, desc:"กลุ่มโจรสลัดหมวกฟาง", extra:["o1.jpg","o2.jpg"]},
-        {title:"Jujutsu Kaisen", img:"jjk.jpg", score:90, desc:"ไสยเวทย์ต้องสาปสุดมันส์", extra:["j1.jpg","j2.jpg"]},
-        {title:"Demon Slayer", img:"ds.jpg", score:89, desc:"เรื่องราวนักล่าปีศาจ", extra:["d1.jpg"]},
-        {title:"Attack on Titan", img:"aot.jpg", score:97, desc:"สงครามกับไททันขนาดยักษ์", extra:["t1.jpg","t2.jpg"]}
-    ],
-    "MOVIE": [
-        {title:"Avatar", img:"avatar.jpg", score:91, desc:"โลกป่าแฟนตาซีอลังการ", extra:["av1.jpg"]},
-        {title:"Avengers", img:"avengers.jpg", score:94, desc:"ฮีโร่รวมทีมต่อสู้", extra:["a1.jpg"]},
-        {title:"Interstellar", img:"interstellar.jpg", score:96, desc:"สำรวจจักรวาลกู้โลก", extra:["i1.jpg"]},
-        {title:"John Wick", img:"wick.jpg", score:88, desc:"นักฆ่าระดับตำนาน", extra:["w1.jpg"]},
-        {title:"Frozen", img:"frozen.jpg", score:85, desc:"เรื่องราวแห่งรักและเพลง", extra:["f1.jpg"]}
-    ],
-    "GAME": [
-        {title:"GTA V", img:"gta.jpg", score:92, desc:"เกมอาชญากรรมโอเพ่นเวิลด์", extra:["g1.jpg"]},
-        {title:"Minecraft", img:"mine.jpg", score:89, desc:"เกมสร้างโลกอิสระ", extra:["m1.jpg"]},
-        {title:"Valorant", img:"valo.jpg", score:87, desc:"ยิงกันแบบ 5v5", extra:["v1.jpg"]},
-        {title:"Genshin Impact", img:"genshin.jpg", score:93, desc:"เกมผจญภัยโลกกว้าง", extra:["gi1.jpg"]},
-        {title:"Roblox", img:"roblox.jpg", score:84, desc:"แพลตฟอร์มสร้างเกม", extra:["r1.jpg"]}
-    ],
-    "SCHOOL": [
-        {title:"โรงเรียนสตรีแห่งหนึ่ง", img:"school1.jpg", score:88, desc:"โรงเรียนคุณภาพดี", extra:["s1.jpg"]},
-        {title:"โรงเรียนราชภัฏ", img:"school2.jpg", score:81, desc:"สถาบันการศึกษาใหญ่", extra:["s2.jpg"]},
-        {title:"โรงเรียนเทคนิค", img:"school3.jpg", score:85, desc:"สายอาชีพชัดเจน", extra:["s3.jpg"]},
-        {title:"โรงเรียนกรุงเทพ", img:"school4.jpg", score:92, desc:"ผลการเรียนดี", extra:["s4.jpg"]},
-        {title:"มหาวิทยาลัยดัง", img:"school5.jpg", score:94, desc:"ชื่อเสียงระดับประเทศ", extra:["s5.jpg"]}
-    ],
-    "PROMOTION": [
-        {title:"ร้านอาหาร A", img:"food1.jpg", score:90, desc:"อาหารอร่อย วัตถุดิบสด", extra:["f1.jpg"]},
-        {title:"คาเฟ่ B", img:"cafe.jpg", score:85, desc:"ร้านถ่ายรูปสวย", extra:["c1.jpg"]},
-        {title:"ร้านเกมส์ C", img:"gamecafe.jpg", score:80, desc:"บริการครบ", extra:["gc1.jpg"]},
-        {title:"ห้าง D", img:"mall.jpg", score:88, desc:"ครบครันทุกอย่าง", extra:["m1.jpg"]},
-        {title:"ร้านขนม E", img:"sweet.jpg", score:82, desc:"ขนมสดใหม่", extra:["s1.jpg"]}
-    ]
-};
-
-/* ========= RENDER CATEGORIES =========== */
-const categoryContainer = document.getElementById("categories");
-
-Object.keys(allData).forEach(cat => {
-    let html = `<div class="category-title">${cat}</div><div class="row">`;
-    allData[cat].forEach(item => {
-        html += `<div class="item" onclick='openDetail(${JSON.stringify(item)})'>
-                    <img src="${item.img}">
-                    <div>${item.title}</div>
-                 </div>`;
-    });
-    html += `</div>`;
-    categoryContainer.innerHTML += html;
-});
-
-/* ========= SEARCH SYSTEM =========== */
-document.getElementById("searchInput").addEventListener("keyup", function(){
-    let q = this.value.toLowerCase();
-    let items = document.querySelectorAll(".item");
-    items.forEach(i => {
-        let text = i.innerText.toLowerCase();
-        i.style.display = text.includes(q) ? "block" : "none";
-    });
-});
-
-/* ========= DETAIL PAGE =========== */
-const detailPage = document.getElementById("detailPage");
-const titleEl = document.getElementById("title");
-const mainImg = document.getElementById("mainImg");
-const descEl = document.getElementById("desc");
-const barEl = document.getElementById("bar");
-const slideImg = document.getElementById("slideImg");
-let sliderInterval;
-
-function openDetail(item){
-    // ซ่อนหมวดหมู่
-    categoryContainer.style.display = "none";
-    // แสดง detail
-    detailPage.style.display = "block";
-    titleEl.innerText = item.title;
-    mainImg.src = item.img;
-    descEl.innerText = item.desc;
-    barEl.style.width = item.score + "%";
-
-    // Slider loop
-    let i = 0;
-    slideImg.src = item.extra[i];
-    clearInterval(sliderInterval);
-    sliderInterval = setInterval(()=>{
-        i = (i + 1) % item.extra.length;
-        slideImg.src = item.extra[i];
-    },1700);
+let data = JSON.parse(localStorage.getItem('data')||'[]');
+function save(){localStorage.setItem('data',JSON.stringify(data));}
+function addItem(){
+ const t=newTitle.value.trim();
+ if(!t) return;
+ data.push({title:t,cat:newCat.value,ratings:[],comments:[]});
+ save();render();newTitle.value='';
 }
-
-function closeDetail(){
-    detailPage.style.display = "none";
-    categoryContainer.style.display = "block";
-    clearInterval(sliderInterval);
+function rate(i,val){
+ data[i].ratings.push(val);
+ save();render();
 }
+function comment(i){
+ const name=prompt('ชื่อผู้รีวิว')||'ผู้ใช้ไม่ระบุชื่อ';
+ const text=prompt('คอมเมนต์');
+ if(!text) return;
+ data[i].comments.push({name,text});
+ save();render();
+}
+function avg(r){
+ return r.length ? (r.reduce((a,b)=>a+b,0)/r.length).toFixed(1)+' / 5' : 'ยังไม่มี';
+}
+function render(){
+ const s=search.value.toLowerCase();
+ const c=category.value;
+ list.innerHTML='';
+ data.forEach((d,i)=>{
+  if(s && !d.title.toLowerCase().includes(s)) return;
+  if(c && d.cat!==c) return;
+  list.innerHTML+=`
+  <div class='card'>
+   <h3>${d.title}</h3>
+   <p>หมวด: ${d.cat}</p>
+   <p>คะแนนเฉลี่ย: ${avg(d.ratings)}</p>
+   <div class='rating'>${[1,2,3,4,5].map(v=>`<span onclick=rate(${i},${v})>★</span>`).join('')}</div>
+   <button onclick=comment(${i})>เขียนรีวิว</button>
+   ${d.comments.map(cm=>`<div class='comment'><b>${cm.name}</b>: ${cm.text}</div>`).join('')}
+  </div>`;
+ });
+}
+render();
 </script>
 </body>
 </html>
