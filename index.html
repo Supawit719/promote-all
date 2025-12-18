@@ -80,7 +80,12 @@ function loginAdmin(){if(adminPass.value===ADMIN_PASSWORD){isAdmin=true;closeAdm
 function addItem(){
  const t=newTitle.value.trim();
  if(!t) return;
- db.ref('items').push({title:t,cat:newCat.value,ratings:[],comments:[]});
+ db.ref('items').push({
+  title:t,
+  cat:newCat.value,
+  ratings:{},
+  comments:{}
+ });
  newTitle.value='';
 }
 
