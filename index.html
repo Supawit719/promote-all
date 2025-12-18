@@ -3,45 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PROMOTE ALL ROUND – รีวิวครบจบในเว็บเดียว</title>
+<title>PROMOTE ALL ROUND</title>
 <style>
-body{font-family:Arial, sans-serif;margin:0;background:#111;color:#eee}
-header{background:#222;padding:20px;text-align:center}
-header h1{margin:0}
-.container{padding:20px;max-width:900px;margin:auto}
-.search-box{margin-bottom:20px;display:flex;gap:10px}
-input, select, textarea, button{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none}
-button{cursor:pointer;background:#444;color:#fff}
+body{font-family:Arial;margin:0;background:#111;color:#eee}
+header{background:#222;padding:20px;text-align:center;position:relative}
+.container{max-width:900px;margin:auto;padding:20px}
+input,select,textarea,button{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none}
+button{background:#444;color:#fff;cursor:pointer}
 .card{background:#1c1c1c;padding:15px;border-radius:12px;margin-bottom:15px}
-.rating span{cursor:pointer;font-size:22px;color:gold}
+.rating span{font-size:22px;cursor:pointer;color:gold}
 .comment{background:#2a2a2a;padding:8px;border-radius:8px;margin-top:6px}
-hr{border:0;border-top:1px solid #333;margin:30px 0}
+
+/* admin icon */
+.admin-icon{
+ position:absolute;top:15px;right:15px;
+ width:34px;height:34px;border-radius:50%;
+ background:#333;display:flex;align-items:center;justify-content:center;
+ cursor:pointer;font-size:18px
+}
+.admin-panel{display:none;background:#1c1c1c;padding:15px;border-radius:12px;margin-bottom:20px}
+.admin-btn{background:#800}
 </style>
 </head>
 <body>
 <header>
 <h1>PROMOTE ALL ROUND</h1>
-<p>โรงเรียน • ร้านค้า • หนัง • นิยาย • อนิเมะ • มังงะ</p>
+<p>รีวิว • ให้คะแนน • ทุกคนเห็นเหมือนกัน</p>
+<div class="admin-icon" onclick="toggleAdmin()">⚙</div>
 </header>
+
 <div class="container">
-<div class="search-box">
-<input type="text" id="search" placeholder="ค้นหาชื่อสถานที่ / เรื่อง..." onkeyup="render()">
-<select id="category" onchange="render()">
-<option value="">ทุกหมวด</option>
-<option>โรงเรียน</option>
-<option>ร้านค้า</option>
-<option>หนังโรง</option>
-<option>นิยาย</option>
-<option>อนิเมะ</option>
-<option>มังงะ</option>
-<option>BL</option>
-<option>Yuri</option>
-<option>Fantasy</option>
-</select>
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="admin-panel">
+<h3>โหมดผู้ดูแล</h3>
+<input id="adminKey" placeholder="รหัสแอดมิน">
+<button onclick="loginAdmin()">เข้าสู่ระบบ</button>
 </div>
-<div id="list"></div>
-<hr>
-<h2>เพิ่มรายการใหม่</h2>
+
+<h3>เพิ่มรายการ</h3>
 <input id="newTitle" placeholder="ชื่อรายการ">
 <select id="newCat">
 <option>โรงเรียน</option><option>ร้านค้า</option><option>หนังโรง</option>
@@ -49,49 +48,79 @@ hr{border:0;border-top:1px solid #333;margin:30px 0}
 <option>BL</option><option>Yuri</option><option>Fantasy</option>
 </select>
 <button onclick="addItem()">เพิ่มรายการ</button>
+<hr>
+<div id="list"></div>
 </div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script>
-let data = JSON.parse(localStorage.getItem('data')||'[]');
-function save(){localStorage.setItem('data',JSON.stringify(data));}
+/* Firebase config */
+const firebaseConfig = {
+ apiKey: "YOUR_API_KEY",
+ authDomain: "YOUR_PROJECT.firebaseapp.com",
+ databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+ projectId: "YOUR_PROJECT",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ADMIN */
+const ADMIN_PASSWORD="1234";
+let isAdmin=false;
+function toggleAdmin(){
+ adminPanel.style.display = adminPanel.style.display==='block'?'none':'block';
+}
+function loginAdmin(){
+ if(adminKey.value===ADMIN_PASSWORD){isAdmin=true;adminPanel.style.display='none';render();alert('เข้าสู่โหมดแอดมิน');}
+ else alert('รหัสไม่ถูกต้อง');
+}
+
+/* ADD ITEM */
 function addItem(){
- const t=newTitle.value.trim();
- if(!t) return;
- data.push({title:t,cat:newCat.value,ratings:[],comments:[]});
- save();render();newTitle.value='';
+ const t=newTitle.value.trim(); if(!t)return;
+ db.ref('items').push({title:t,cat:newCat.value});
+ newTitle.value='';
 }
-function rate(i,val){
- data[i].ratings.push(val);
- save();render();
-}
-function comment(i){
- const name=prompt('ชื่อผู้รีวิว')||'ผู้ใช้ไม่ระบุชื่อ';
- const text=prompt('คอมเมนต์');
- if(!text) return;
- data[i].comments.push({name,text});
- save();render();
-}
-function avg(r){
- return r.length ? (r.reduce((a,b)=>a+b,0)/r.length).toFixed(1)+' / 5' : 'ยังไม่มี';
-}
-function render(){
- const s=search.value.toLowerCase();
- const c=category.value;
+
+/* LOAD ITEMS */
+db.ref('items').on('value',snap=>{
  list.innerHTML='';
- data.forEach((d,i)=>{
-  if(s && !d.title.toLowerCase().includes(s)) return;
-  if(c && d.cat!==c) return;
-  list.innerHTML+=`
-  <div class='card'>
-   <h3>${d.title}</h3>
-   <p>หมวด: ${d.cat}</p>
-   <p>คะแนนเฉลี่ย: ${avg(d.ratings)}</p>
-   <div class='rating'>${[1,2,3,4,5].map(v=>`<span onclick=rate(${i},${v})>★</span>`).join('')}</div>
-   <button onclick=comment(${i})>เขียนรีวิว</button>
-   ${d.comments.map(cm=>`<div class='comment'><b>${cm.name}</b>: ${cm.text}</div>`).join('')}
-  </div>`;
- });
+ snap.forEach(c=>list.innerHTML+=renderItem(c.key,c.val()));
+});
+
+function renderItem(id,d){
+ return `<div class='card'>
+ <h3>${d.title}</h3>
+ <p>หมวด: ${d.cat}</p>
+ <div class='rating'>${[1,2,3,4,5].map(v=>`<span onclick=rate('${id}',${v})>★</span>`).join('')}</div>
+ <button onclick=comment('${id}')>เขียนรีวิว</button>
+ ${isAdmin?`<button class='admin-btn' onclick=del('${id}')>ลบโพส</button>`:''}
+ <div id='c-${id}'></div>
+ </div>`;
 }
-render();
+
+function rate(id,val){ db.ref('ratings/'+id).push(val); }
+function comment(id){
+ const name=prompt('ชื่อ')||'ไม่ระบุ';
+ const text=prompt('คอมเมนต์'); if(!text)return;
+ db.ref('comments/'+id).push({name,text});
+}
+function del(id){ if(confirm('ลบจริงไหม')) db.ref('items/'+id).remove(); }
+
+/* LOAD COMMENTS */
+db.ref('comments').on('value',snap=>{
+ snap.forEach(p=>{
+  const box=document.getElementById('c-'+p.key);
+  if(!box)return;
+  box.innerHTML='';
+  p.forEach(c=>{
+   const d=c.val();
+   box.innerHTML+=`<div class='comment'><b>${d.name}</b>: ${d.text}</div>`;
+  });
+ });
+});
 </script>
 </body>
 </html>
