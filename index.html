@@ -16,8 +16,6 @@ button{cursor:pointer;background:#444;color:#fff}
 .rating span{cursor:pointer;font-size:22px;color:gold}
 .comment{background:#2a2a2a;padding:8px;border-radius:8px;margin-top:6px}
 hr{border:0;border-top:1px solid #333;margin:30px 0}
-
-/* admin icon */
 #adminBtn{
  position:absolute;top:15px;right:15px;
  width:36px;height:36px;border-radius:50%;
@@ -25,8 +23,6 @@ hr{border:0;border-top:1px solid #333;margin:30px 0}
  cursor:pointer
 }
 .delete{background:#a00;margin-top:10px}
-
-/* floating icons */
 #floatIcons{
  position:fixed;right:20px;bottom:20px;
  display:flex;flex-direction:column;gap:12px;z-index:999
@@ -38,8 +34,6 @@ hr{border:0;border-top:1px solid #333;margin:30px 0}
  font-size:26px;cursor:pointer;
  box-shadow:0 0 10px #000
 }
-
-/* add box */
 #addBox{
  display:none;
  background:#1c1c1c;
@@ -69,15 +63,13 @@ hr{border:0;border-top:1px solid #333;margin:30px 0}
 <option>นิยาย</option>
 <option>อนิเมะ</option>
 <option>มังงะ</option>
-<option>BL</option>
-<option>Yuri</option>
-<option>Fantasy</option>
+<option>ซีรีย์</option>
+<option>มังฮวา</option>
+<option>เกม</option>
 </select>
 </div>
 
 <div id="list"></div>
-
-<!-- ADD ITEM BOX -->
 <div id="addBox">
 <hr>
 <h2>เพิ่มรายการใหม่</h2>
@@ -85,14 +77,12 @@ hr{border:0;border-top:1px solid #333;margin:30px 0}
 <select id="newCat">
 <option>โรงเรียน</option><option>ร้านค้า</option><option>หนังโรง</option>
 <option>นิยาย</option><option>อนิเมะ</option><option>มังงะ</option>
-<option>BL</option><option>Yuri</option><option>Fantasy</option>
+<option>ซีรีย์</option><option>มังฮวา</option><option>เกม</option>
 </select>
 <button onclick="addItem()">เพิ่มรายการ</button>
 </div>
 
 </div>
-
-<!-- FLOATING ICONS -->
 <div id="floatIcons">
 <div class="floatIcon" onclick="contactAdmin()">💬</div>
 <div class="floatIcon" onclick="toggleAdd()">➕</div>
